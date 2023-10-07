@@ -18,7 +18,7 @@ def generate_rust():
 
         # Call GPT-4 to generate Rust code
         headers = {
-            'Authorization': 'Bearer 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',
+            'Authorization': 'Bearer ${OPENAI_API_KEY}',
             'Content-Type': 'application/json'
         }
         data = {

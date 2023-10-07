@@ -1,0 +1,91 @@
+body {
+  overflow-x: hidden;
+  margin: 0; /* Remove default margin */
+}
+
+.App {
+  font-family: Arial, sans-serif;
+}
+
+/* Styling for the navigation bar */
+.custom-navbar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%; /* Set the navbar's height to 100% */
+  width: 250px; /* Adjust the width as needed */
+  background-color: #007bff; /* Change to your preferred background color */
+  padding-top: 20px;
+  padding-bottom: 20px; /* Add padding to the bottom for better spacing */
+}
+
+/* Add margin-top for text in the upper section */
+.upper-text {
+  margin-top: 20px; /* Adjust the margin as needed */
+}
+
+.custom-navbar .nav-link {
+  color: #fff;
+  /* Change the link text color */
+}
+
+.custom-navbar .nav-link.active {
+  background-color: #0056b3;
+  /* Change the active link background color */
+}
+
+/* Styling for the headings */
+h1 {
+  font-size: 24px;
+  /* Adjust the font size as needed */
+  color: #333;
+  /* Change the heading text color */
+}
+
+/* Styling for the input fields */
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Styling for the buttons */
+button {
+  background-color: #007bff;
+  /* Change to your preferred button color */
+  color: #fff;
+  /* Change the button text color */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+  /* Change the button color on hover */
+}
+
+/* Styling for the error alert */
+.alert {
+  background-color: #f44336;
+  /* Change the error alert background color */
+  color: #fff;
+  /* Change the error alert text color */
+}
+
+/* Styling for the Rust code block */
+.custom-code-block {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  /* Change the code block background color */
+  color: #333;
+  /* Change the code block text color */
+}

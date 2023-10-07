@@ -1,6 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Access the OPENAI_API_KEY
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 CORS(app, resources={
@@ -18,7 +26,7 @@ def generate_rust():
 
         # Call GPT-4 to generate Rust code
         headers = {
-            'Authorization': 'Bearer ${OPENAI_API_KEY}',
+            'Authorization': f'Bearer {OPENAI_API_KEY}',
             'Content-Type': 'application/json'
         }
         data = {

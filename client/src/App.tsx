@@ -28,6 +28,8 @@ export default function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [contractType, setContractType] = useState<string>("default");
+  const [shardTarget, setShardTarget] = useState<string>("single");
+  const [functionalRequirements, setFunctionalRequirements] = useState<string[]>([]);
 
   useEffect(() => {
     if (address && address.length > 0) {
@@ -46,7 +48,7 @@ export default function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ description, contractType }),
+        body: JSON.stringify({ description, contractType, shardTarget, functionalRequirements }),
       });
 
       const data = await response.json();
@@ -153,10 +155,38 @@ export default function App() {
                 <Label for="contractTypeSelect">Select Smart Contract Type</Label>
                 <Input type="select" id="contractTypeSelect" value={contractType} onChange={(e) => setContractType(e.target.value)}>
                   <option value="default">Default</option>
-                  <option value="defi">DeFi</option>
-                  <option value="nft">NFT</option>
-                  <option value="dao">DAO</option>
+                  <option value="defi">DeFi (Decentralized Finance)</option>
+                  <option value="nft">NFT (Non-Fungible Tokens)</option>
+                  <option value="dao">DAO (Decentralized Autonomous Organization)</option>
+                  <option value="marketplace">Marketplace</option>
+                  <option value="votingsystem">Voting System</option>
+                  <option value="crowfunding">Crowdfunding / ICO</option>
+                  <option value="supplychain">Supply Chain</option>
+                  <option value="identitymanagement">Identity Management</option>
+                  <option value="dapp">dApp</option>
+                  <option value="gaming">Gaming</option>
                 </Input>
+              </FormGroup>
+              <FormGroup>
+                <Label for="shardTargetSelect">Shard Targeting</Label>
+                <Input type="select" id="shardTargetSelect" value={shardTarget} onChange={(e) => setShardTarget(e.target.value)}>
+                  <option value="single">Single Shard</option>
+                  <option value="multi">Multiple Shards (Cross-shard communication)</option>
+                </Input>
+              </FormGroup>
+              <FormGroup>
+                <Label>Functional Requirements</Label>
+                {['Token minting', 'Token burning', 'P2P transfers', 'Staking', 'Lending and borrowing', 'Automated market-making', 'Auctions', 'Escrow services'].map(req => (
+                  <div key={req}>
+                    <Input type="checkbox" value={req} onChange={(e) => {
+                      if (e.target.checked) {
+                        setFunctionalRequirements(prev => [...prev, req]);
+                      } else {
+                        setFunctionalRequirements(prev => prev.filter(r => r !== req));
+                      }
+                    }} /> {req}
+                  </div>
+                ))}
               </FormGroup>
               <FormGroup>
                 <Label for="descriptionTextarea">Enter TypeScript description</Label>
@@ -174,7 +204,7 @@ export default function App() {
               {error && <Alert color="danger" className="mt-3">{error}</Alert>}
               {rustCode && (
                 <div className="mt-3 bg-light p-3 custom-code-block">
-                  <pre>{rustCode}</pre>
+                  <pre style={{ whiteSpace: "pre-wrap" }}>{rustCode}</pre>
                 </div>
               )}
             </Col>

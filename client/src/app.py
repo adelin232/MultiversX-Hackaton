@@ -37,10 +37,19 @@ CORS(app, resources={
 def generate_rust():
     try:
         description = request.json.get('description')
+        # Default to default if not provided
         contract_type = request.json.get('contractType', 'default')
+        # Default to single shard if not provided
+        shard_target = request.json.get('shardTarget', 'single')
+        # Default to [] if not provided
+        functional_requirements = request.json.get(
+            'functionalRequirements', [])
 
-        # Modify the prompt based on the contract type
-        prompt = f"Convert the following TypeScript description to Rust for a {contract_type} smart contract: {description}"
+        # Convert the list of functional requirements into a string
+        requirements_str = ', '.join(functional_requirements)
+
+        # Modify the prompt based on contract type, shard targeting, and functional requirements
+        prompt = f"Convert the following TypeScript description to Rust for a {contract_type} type, {shard_target} shard smart contract with the following functionalities: {requirements_str}. Description: {description}"
 
         # Call GPT-4 to generate Rust code
         headers = {

@@ -16,6 +16,7 @@ import {
 import { MultiversXService, Response } from "./sdk/multiversXService.sdk";
 import { useState, useEffect } from "react";
 import "./App.css"; // Import custom CSS for styling
+// import { Buffer } from 'buffer';
 
 export default function App() {
   const [address, setAddress] = useState("");
@@ -24,6 +25,8 @@ export default function App() {
   const [rustCode, setRustCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeOption, setActiveOption] = useState("option1");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (address && address.length > 0) {
@@ -59,6 +62,44 @@ export default function App() {
     }
   };
 
+  const uploadFileToCOS = async () => {
+    if (!selectedFile) {
+      setUploadStatus("No file selected!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await fetch("http://localhost:5000/upload-to-cos", {
+        method: "PUT",  // Change to PUT as per your request
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setUploadStatus(`Error uploading: ${data.error}`);
+      } else {
+        setUploadStatus('Upload success!');
+      }
+    } catch (err) {
+      setUploadStatus("Error uploading file.");
+    }
+  };
+
+  // const fileToBuffer = (file: File): Promise<Buffer> => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.readAsArrayBuffer(file);
+  //     reader.onload = () => {
+  //       resolve(Buffer.from(reader.result as ArrayBuffer));
+  //     };
+  //     reader.onerror = reject;
+  //   });
+  // };
+
   return (
     <div className="App">
       <Navbar color="dark" dark className="mb-5 custom-navbar">
@@ -79,6 +120,15 @@ export default function App() {
               onClick={() => setActiveOption("option2")}
             >
               TypeScript to Rust Converter
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              href="#"
+              active={activeOption === "option3"}
+              onClick={() => setActiveOption("option3")}
+            >
+              Upload to COS
             </NavLink>
           </NavItem>
         </Nav>
@@ -128,6 +178,28 @@ export default function App() {
                   <pre>{rustCode}</pre>
                 </div>
               )}
+            </Col>
+          </Row>
+        </Container>
+      )}
+
+      {activeOption === "option3" && (
+        <Container>
+          <Row className="justify-content-center">
+            <Col md={6}>
+              <h1 className="text-center mb-4">Upload Files to COS</h1>
+              <FormGroup>
+                <Label for="fileInput">Select File</Label>
+                <Input
+                  type="file"
+                  id="fileInput"
+                  onChange={(e: any) => setSelectedFile(e.target.files[0])}
+                />
+              </FormGroup>
+              <Button color="primary" onClick={uploadFileToCOS} className="mb-3">
+                Upload
+              </Button>
+              {uploadStatus && <Alert color={uploadStatus.includes("Error") ? "danger" : "success"} className="mt-3">{uploadStatus}</Alert>}
             </Col>
           </Row>
         </Container>

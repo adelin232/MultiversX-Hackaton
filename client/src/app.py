@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import requests
 import os
 from dotenv import load_dotenv
 from tencentcloud.common import credential
@@ -36,6 +37,10 @@ CORS(app, resources={
 def generate_rust():
     try:
         description = request.json.get('description')
+        contract_type = request.json.get('contractType', 'default')
+
+        # Modify the prompt based on the contract type
+        prompt = f"Convert the following TypeScript description to Rust for a {contract_type} smart contract: {description}"
 
         # Call GPT-4 to generate Rust code
         headers = {
@@ -44,7 +49,7 @@ def generate_rust():
         }
         data = {
             "messages": [
-                {"role": "user", "content": f"Convert the following TypeScript description to Rust: {description}"}
+                {"role": "user", "content": prompt}
             ],
             "model": "gpt-4-0314"
         }

@@ -27,6 +27,7 @@ export default function App() {
   const [activeOption, setActiveOption] = useState("option1");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [contractType, setContractType] = useState<string>("default");
 
   useEffect(() => {
     if (address && address.length > 0) {
@@ -45,7 +46,7 @@ export default function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ description }),
+        body: JSON.stringify({ description, contractType }),
       });
 
       const data = await response.json();
@@ -88,17 +89,6 @@ export default function App() {
       setUploadStatus("Error uploading file.");
     }
   };
-
-  // const fileToBuffer = (file: File): Promise<Buffer> => {
-  //   return new Promise((resolve, reject) => {
-  //     const reader = new FileReader();
-  //     reader.readAsArrayBuffer(file);
-  //     reader.onload = () => {
-  //       resolve(Buffer.from(reader.result as ArrayBuffer));
-  //     };
-  //     reader.onerror = reject;
-  //   });
-  // };
 
   return (
     <div className="App">
@@ -160,6 +150,15 @@ export default function App() {
             <Col md={6}>
               <h1 className="text-center mb-4 upper-text">TypeScript to Rust Converter</h1>
               <FormGroup>
+                <Label for="contractTypeSelect">Select Smart Contract Type</Label>
+                <Input type="select" id="contractTypeSelect" value={contractType} onChange={(e) => setContractType(e.target.value)}>
+                  <option value="default">Default</option>
+                  <option value="defi">DeFi</option>
+                  <option value="nft">NFT</option>
+                  <option value="dao">DAO</option>
+                </Input>
+              </FormGroup>
+              <FormGroup>
                 <Label for="descriptionTextarea">Enter TypeScript description</Label>
                 <Input
                   type="textarea"
@@ -187,7 +186,7 @@ export default function App() {
         <Container>
           <Row className="justify-content-center">
             <Col md={6}>
-              <h1 className="text-center mb-4">Upload Files to COS</h1>
+              <h1 className="text-center mb-4 upper-text">Upload Files to COS</h1>
               <FormGroup>
                 <Label for="fileInput">Select File</Label>
                 <Input

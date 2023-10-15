@@ -30,6 +30,7 @@ export default function App() {
   const [contractType, setContractType] = useState<string>("default");
   const [shardTarget, setShardTarget] = useState<string>("single");
   const [functionalRequirements, setFunctionalRequirements] = useState<string[]>([]);
+  const [uploadedRustContent, setUploadedRustContent] = useState<string | null>(null);
 
   useEffect(() => {
     if (address && address.length > 0) {
@@ -48,7 +49,7 @@ export default function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ description, contractType, shardTarget, functionalRequirements }),
+        body: JSON.stringify({ description, contractType, shardTarget, functionalRequirements, uploadedRustContent }),
       });
 
       const data = await response.json();
@@ -89,6 +90,17 @@ export default function App() {
       }
     } catch (err) {
       setUploadStatus("Error uploading file.");
+    }
+  };
+
+  const handleRustFileUpload = (e: any) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setUploadedRustContent(event.target?.result as string);
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -187,6 +199,10 @@ export default function App() {
                     }} /> {req}
                   </div>
                 ))}
+              </FormGroup>
+              <FormGroup>
+                <Label for="rustFileInput">Upload Rust (.rs) File</Label>
+                <Input type="file" id="rustFileInput" accept=".rs" onChange={handleRustFileUpload} />
               </FormGroup>
               <FormGroup>
                 <Label for="descriptionTextarea">Enter TypeScript description</Label>

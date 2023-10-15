@@ -8,7 +8,7 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.common.common_client import CommonClient
-import base64
+import re
 
 # Load environment variables from .env file
 load_dotenv()
@@ -37,19 +37,17 @@ CORS(app, resources={
 def generate_rust():
     try:
         description = request.json.get('description')
-        # Default to default if not provided
-        contract_type = request.json.get('contractType', 'default')
-        # Default to single shard if not provided
+        contract_type = request.json.get('contractType', 'generic')
         shard_target = request.json.get('shardTarget', 'single')
-        # Default to [] if not provided
         functional_requirements = request.json.get(
             'functionalRequirements', [])
+        uploaded_rust_content = request.json.get('uploadedRustContent', '')
 
         # Convert the list of functional requirements into a string
         requirements_str = ', '.join(functional_requirements)
 
-        # Modify the prompt based on contract type, shard targeting, and functional requirements
-        prompt = f"Convert the following TypeScript description to Rust for a {contract_type} type, {shard_target} shard smart contract with the following functionalities: {requirements_str}. Description: {description}"
+        # Modify the prompt based on contract type, shard targeting, functional requirements, and uploaded Rust content
+        prompt = f"Convert the following TypeScript description to Rust for a {contract_type} type, {shard_target} shard smart contract with the following functionalities: {requirements_str}. Description: {description}. Existing Rust code: {uploaded_rust_content}"
 
         # Call GPT-4 to generate Rust code
         headers = {
@@ -66,10 +64,16 @@ def generate_rust():
             'https://api.openai.com/v1/chat/completions', headers=headers, json=data)
 
         if response.status_code == 200:
-            rust_code = response.json().get('choices')[0].get(
-                'message', {}).get('content')
+            full_response = response.json().get('choices')[0].get(
+                'message', {}).get('content', '')
+
+            # Extract only Rust code using a regular expression
+            rust_code_match = re.search(r'```rust([\s\S]*?)```', full_response)
+            rust_code = rust_code_match.group(
+                1).strip() if rust_code_match else None
+
             if rust_code:
-                return jsonify({'rustCode': rust_code.strip()})
+                return jsonify({'rustCode': rust_code})
             else:
                 return jsonify({'error': 'No Rust code generated.'}), 500
         else:

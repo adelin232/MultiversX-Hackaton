@@ -1,31 +1,44 @@
-# MultiversX example
+# MultiversX Smart Contract Generator
+This project provides a user-friendly interface to generate Rust-based smart contracts for the MultiversX blockchain (formerly known as Elrond). It leverages the power of GPT-4 to convert TypeScript descriptions into Rust code, and also provides features to upload and manage smart contracts on Tencent COS.
 
-This is an example of an integration with the MultiversX blockchain. The application queries the balance of an existing account.
+## Features
+1. Address & Balance Query: Check the balance of a given MultiversX address.
+2. TypeScript to Rust Converter: Convert TypeScript descriptions into Rust code for smart contract development.
+Upload to COS: Upload Rust smart contract files to Tencent COS for storage and management.
+Roadmap
+3. AI Training on Smart Contracts: We aim to train an AI algorithm on the smart contracts stored in Tencent COS. This will enhance the accuracy and efficiency of our TypeScript to Rust conversion process.
+4. Enhanced Smart Contract Management: Future updates will provide more advanced features for managing and deploying smart contracts directly from the interface.
 
-Note: `genezio deploy` deploys both backend and frontend. If you want to test this example out-of-the-box by running 1 command, head to the `server` directory and run `genezio deploy`.
+## Getting Started
+### Prerequisites
+1. Python 3.x
+2. Node.js and npm
+3. Tencent Cloud account with COS enabled
+4. OpenAI API key
 
-If you want to deploy your application step-by-step, follow the guidelines below.
+### Setup & Deployment
+1. Server Deployment:
+* Navigate to the server folder.
+* Execute the command:
+* `genezio deploy`
+2. Running the Backend Locally:
+* Navigate to the client/src folder.
+* Execute the command:
+* `python app.py`
 
-## Clone the example
-1. Run `git clone https://github.com/Genez-io/genezio-examples`
-2. Navigate to the folder `cd ./genezio-examples/typescript/multiversx`
+### Usage
+1. Address & Balance:
+* Enter a MultiversX address to check its balance.
+2. TypeScript to Rust Converter:
+* Choose the type of smart contract you want (e.g., DeFi, NFT, etc.).
+* Enter a TypeScript description.
+Click on "Generate Rust Code" to get the corresponding Rust code.
+3. Upload to COS:
+* Choose a Rust file (.rs) from your system.
+* Click on "Upload" to store the smart contract on Tencent COS.
 
-## Initialization
+## Contributing
+Feel free to fork this repository, make changes, and submit pull requests. Any contributions, whether big or small, are greatly appreciated!
 
-1. Run `npm install` in the `server/` folder to install the dependencies.
-2. Run `npm install` in the `client/` folder to install the dependencies.
-
-## Run the example locally
-
-1. Run `genezio local` in the `server/` folder to start the local server.
-2. Start the React app by going to the `client/` folder and run `npm start`.
-
-## Deploy the example in the Genezio infrastructure
-
-1. Run `genezio deploy --backend` in the `server/` folder that contains also the `genezio.yaml` file. This will deploy your code in the genezio infrastructure and it will also create an SDK that can be used to call the methods remotely.
-2. Start the React app by going to the `client/` folder and run `npm start`.
-
-## Deploy the frontend in Genezio Infrastructure
-
-1. Run `npm i && npm run build` in the `client` folder to build the React app.
-2. Run `genezio deploy --frontend` in the `server` folder to deploy the frontend in the genezio infrastructure.
+## License
+This project is licensed under the GPL-3.0 License.

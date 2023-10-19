@@ -9,6 +9,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.common.common_client import CommonClient
 import re
+import base64
 
 # Load environment variables from .env file
 load_dotenv()
@@ -107,11 +108,14 @@ def upload_to_cos():
         file = request.files['file']
         file_bytes = file.read()
 
+        # Encode the file bytes as base64
+        file_base64 = base64.b64encode(file_bytes).decode('utf-8')
+
         # Upload to COS
         params = {
             "Bucket": BUCKET,
             "Key": file.filename,
-            "Body": file_bytes
+            "Body": file_base64
         }
         resp = client.call("PutObject", params)
 

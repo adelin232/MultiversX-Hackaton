@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 import re
-import base64
+from bs4 import BeautifulSoup
 
 # Load environment variables from .env file
 load_dotenv()
@@ -17,6 +17,7 @@ TENCENT_SECRET_ID = os.getenv("TENCENT_SECRET_ID")
 TENCENT_SECRET_KEY = os.getenv("TENCENT_SECRET_KEY")
 REGION = os.getenv("TENCENT_REGION")
 BUCKET = os.getenv("TENCENT_BUCKET_NAME")
+BUCKET2 = os.getenv("TENCENT_BUCKET_NAME2")
 
 app = Flask(__name__)
 CORS(app, resources={
@@ -26,6 +27,11 @@ CORS(app, resources={
         "allow_headers": ["Content-Type", "Authorization"]
     },
     r"/upload-to-cos": {
+        "origins": ["https://beige-jolly-capybara.app.genez.io", "https://beige-jolly-capybara.dev.app.genez.io", "http://localhost:3000"],
+        "methods": ["POST"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    },
+    r"/create-endpoints": {
         "origins": ["https://beige-jolly-capybara.app.genez.io", "https://beige-jolly-capybara.dev.app.genez.io", "http://localhost:3000"],
         "methods": ["POST"],
         "allow_headers": ["Content-Type", "Authorization"]
@@ -106,6 +112,99 @@ def upload_to_cos():
         )
 
         return jsonify({"success": True, "message": "File uploaded successfully!"})
+
+    except Exception as err:
+        return jsonify({"success": False, "message": f"An error occurred: {err}"})
+
+
+GITHUB_API_BASE = "https://api.github.com/repos/multiversx/mx-sdk-rs/contents"
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+
+
+processed_dirs = set()
+
+
+def get_all_rs_files(url):
+    if url in processed_dirs:
+        return []
+
+    processed_dirs.add(url)
+
+    headers = {
+        "Accept": "application/vnd.github.v3+json"
+    }
+
+    rs_files = []
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        print(f"Failed to fetch {url}. Status code: {response.status_code}")
+        return []
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+    links = [link.get('href') for link in soup.select('.js-navigation-open')]
+
+    for link in links:
+        if link.endswith('.rs'):
+            rs_files.append(link)
+        elif '/tree/master/' in link:  # It's a directory
+            rs_files.extend(get_all_rs_files(f"https://github.com{link}"))
+
+    return rs_files
+
+
+@app.route('/refresh-smart-contracts', methods=['POST'])
+def refresh_smart_contracts():
+    try:
+        rs_links = []
+        rs_links = get_all_rs_files("contracts")
+
+        # Initialize Tencent Cloud COS client
+        config = CosConfig(
+            Region=REGION, SecretId=TENCENT_SECRET_ID, SecretKey=TENCENT_SECRET_KEY)
+        client = CosS3Client(config)
+
+        # Download and upload each smart contract
+        for rs_url in rs_links:
+            print(rs_url)
+            contract_name = rs_url.split('/')[-1]
+            contract_content = requests.get(rs_url).text
+
+            # Upload to COS
+            client.put_object(
+                Bucket=BUCKET,
+                Body=contract_content,
+                Key=contract_name,
+                StorageClass='STANDARD'
+            )
+
+        return jsonify({"success": True, "message": "Smart contracts refreshed successfully!"})
+
+    except Exception as err:
+        return jsonify({"success": False, "message": f"An error occurred: {err}"})
+
+
+@app.route('/create-endpoints', methods=['POST'])
+def create_endpoints():
+    try:
+        # Extract the endpoint names from the request
+        endpoints = request.json.get('endpoints', [])
+
+        # Initialize Tencent Cloud COS client
+        config = CosConfig(
+            Region=REGION, SecretId=TENCENT_SECRET_ID, SecretKey=TENCENT_SECRET_KEY)
+        client = CosS3Client(config)
+
+        # Save each endpoint name to the Tencent Cloud bucket
+        for endpoint in endpoints:
+            client.put_object(
+                Bucket=BUCKET2,
+                Body=endpoint,  # Content of the file
+                Key=f"{endpoint}.txt",  # File name
+                StorageClass='STANDARD'
+            )
+
+        return jsonify({"success": True, "message": "Endpoints created successfully!"})
 
     except Exception as err:
         return jsonify({"success": False, "message": f"An error occurred: {err}"})

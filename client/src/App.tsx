@@ -236,7 +236,8 @@ export default function App() {
               active={activeOption === "option2"}
               onClick={() => setActiveOption("option2")}
             >
-              Rust Code Generator
+              {/* Rust Code Generator */}
+              MultiversX Smart Contract AI Gen
             </NavLink>
           </NavItem>
           <NavItem>
@@ -245,7 +246,7 @@ export default function App() {
               active={activeOption === "option3"}
               onClick={() => setActiveOption("option3")}
             >
-              Upload SCs to COS
+              Upload MultiversX SCs to Tencent COS
             </NavLink>
           </NavItem>
           <NavItem>
@@ -254,7 +255,7 @@ export default function App() {
               active={activeOption === "option4"}
               onClick={() => setActiveOption("option4")}
             >
-              Create Smart Contract
+              Create MultiversX Smart Contract
             </NavLink>
           </NavItem>
 
@@ -285,7 +286,8 @@ export default function App() {
         <Container>
           <Row className="justify-content-center">
             <Col md={6}>
-              <h2 className="text-center mb-4 upper-text">Rust Code Generator using GPT4</h2>
+              {/* <h2 className="text-center mb-4 upper-text">Rust Code Generator using GPT4</h2> */}
+              <h2 className="text-center mb-4 upper-text">MultiversX Smart Contract AI Gen</h2>
               <FormGroup>
                 <Label for="contractTypeSelect">Select Smart Contract Type</Label>
                 <Input type="select" id="contractTypeSelect" value={contractType} onChange={(e) => setContractType(e.target.value)}>
@@ -355,7 +357,7 @@ export default function App() {
         <Container>
           <Row className="justify-content-center">
             <Col md={6}>
-              <h2 className="text-center mb-4 upper-text">Upload SCs to COS</h2>
+              <h2 className="text-center mb-4 upper-text">Upload MultiversX SCs to Tencent COS</h2>
               <FormGroup>
                 <Label for="fileInput">Select File</Label>
                 <Input
@@ -381,7 +383,7 @@ export default function App() {
         <Container>
           <Row className="justify-content-center">
             <Col md={6}>
-              <h2 className="text-center mb-4 upper-text">Create Smart Contract</h2>
+              <h2 className="text-center mb-4 upper-text">Create MultiversX Smart Contract</h2>
               <FormGroup>
                 <Label for="contractNameInput">Contract Name</Label>
                 <Input

@@ -53,7 +53,7 @@ def generate_rust():
         requirements_str = ', '.join(functional_requirements)
 
         # Modify the prompt based on contract type, shard targeting, functional requirements, and uploaded Rust content
-        prompt = f"Convert the following TypeScript description to Rust for a {contract_type} type, {shard_target} shard smart contract with the following functionalities: {requirements_str}. Description: {description}. Existing Rust code: {uploaded_rust_content}"
+        prompt = f"Convert the following TypeScript description to Rust for a {contract_type} type, {shard_target} shard smart contract with the following functionalities: {requirements_str}. Description: {description}. Existing Rust code: {uploaded_rust_content}. Note: instead of elrond_wasm, it will be multiversx_sc."
 
         # Call GPT-4 to generate Rust code
         headers = {

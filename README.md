@@ -29,13 +29,16 @@ Roadmap
 ### Usage
 1. Address & Balance:
 * Enter a MultiversX address to check its balance.
-2. TypeScript to Rust Converter:
+2. Smart Contract AI Gen:
 * Choose the type of smart contract you want (e.g., DeFi, NFT, etc.).
 * Enter a TypeScript description.
 Click on "Generate Rust Code" to get the corresponding Rust code.
-3. Upload to COS:
+3. Upload to Tencent COS:
 * Choose a Rust file (.rs) from your system.
 * Click on "Upload" to store the smart contract on Tencent COS.
+4. Create Smart Contract
+* Write details about the smart contract
+* Click on "Submit" to create the smart contract
 
 ## Contributing
 Feel free to fork this repository, make changes, and submit pull requests. Any contributions, whether big or small, are greatly appreciated!

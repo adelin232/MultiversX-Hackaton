@@ -3,11 +3,8 @@ from flask_cors import CORS
 import requests
 import os
 from dotenv import load_dotenv
-from tencentcloud.common import credential
-from tencentcloud.common.profile.client_profile import ClientProfile
-from tencentcloud.common.profile.http_profile import HttpProfile
-from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
-from tencentcloud.common.common_client import CommonClient
+from qcloud_cos import CosConfig
+from qcloud_cos import CosS3Client
 import re
 import base64
 
@@ -18,6 +15,8 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 TENCENT_SECRET_ID = os.getenv("TENCENT_SECRET_ID")
 TENCENT_SECRET_KEY = os.getenv("TENCENT_SECRET_KEY")
+REGION = os.getenv("TENCENT_REGION")
+BUCKET = os.getenv("TENCENT_BUCKET_NAME")
 
 app = Flask(__name__)
 CORS(app, resources={
@@ -28,7 +27,7 @@ CORS(app, resources={
     },
     r"/upload-to-cos": {
         "origins": ["https://beige-jolly-capybara.app.genez.io", "https://beige-jolly-capybara.dev.app.genez.io", "http://localhost:3000"],
-        "methods": ["PUT"],
+        "methods": ["POST"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
 })
@@ -86,42 +85,29 @@ def generate_rust():
         return jsonify({'error': 'Internal Server Error'}), 500
 
 
-@app.route('/upload-to-cos', methods=['PUT'])
+@app.route('/upload-to-cos', methods=['POST'])
 def upload_to_cos():
     try:
-        # Load credentials and region from .env
-        SECRET_ID = os.getenv("TENCENT_SECRET_ID")
-        SECRET_KEY = os.getenv("TENCENT_SECRET_KEY")
-        REGION = os.getenv("TENCENT_REGION")
-        BUCKET = os.getenv("TENCENT_BUCKET_NAME")
-
         # Initialize Tencent Cloud COS client
-        cred = credential.Credential(SECRET_ID, SECRET_KEY)
-        httpProfile = HttpProfile()
-        httpProfile.endpoint = f"{BUCKET}.cos.{REGION}.myqcloud.com"
-
-        clientProfile = ClientProfile(httpProfile=httpProfile)
-        client = CommonClient(service="cos", region=REGION,
-                              credential=cred, version="2018-06-06")
+        config = CosConfig(
+            Region=REGION, SecretId=TENCENT_SECRET_ID, SecretKey=TENCENT_SECRET_KEY)
+        client = CosS3Client(config)
 
         # Extract file from the request
         file = request.files['file']
         file_bytes = file.read()
 
-        # Encode the file bytes as base64
-        file_base64 = base64.b64encode(file_bytes).decode('utf-8')
-
         # Upload to COS
-        params = {
-            "Bucket": BUCKET,
-            "Key": file.filename,
-            "Body": file_base64
-        }
-        resp = client.call("PutObject", params)
+        response = client.put_object(
+            Bucket=BUCKET,
+            Body=file_bytes,
+            Key=file.filename,
+            StorageClass='STANDARD'
+        )
 
         return jsonify({"success": True, "message": "File uploaded successfully!"})
 
-    except TencentCloudSDKException as err:
+    except Exception as err:
         return jsonify({"success": False, "message": f"An error occurred: {err}"})
 
 

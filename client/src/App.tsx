@@ -77,7 +77,7 @@ export default function App() {
 
     try {
       const response = await fetch("http://localhost:5000/upload-to-cos", {
-        method: "PUT",  // Change to PUT as per your request
+        method: "POST",
         body: formData,
       });
 

@@ -7,6 +7,8 @@ from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 import re
 from bs4 import BeautifulSoup
+import base64
+import datetime
 
 # Load environment variables from .env file
 load_dotenv()
@@ -32,6 +34,11 @@ CORS(app, resources={
         "allow_headers": ["Content-Type", "Authorization"]
     },
     r"/create-endpoints": {
+        "origins": ["https://beige-jolly-capybara.app.genez.io", "https://beige-jolly-capybara.dev.app.genez.io", "http://localhost:3000"],
+        "methods": ["POST"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    },
+    r"/create-github-repo": {
         "origins": ["https://beige-jolly-capybara.app.genez.io", "https://beige-jolly-capybara.dev.app.genez.io", "http://localhost:3000"],
         "methods": ["POST"],
         "allow_headers": ["Content-Type", "Authorization"]
@@ -208,6 +215,56 @@ def create_endpoints():
 
     except Exception as err:
         return jsonify({"success": False, "message": f"An error occurred: {err}"})
+
+
+GITHUB_API_BASE_URL = "https://api.github.com"
+GITHUB_TOKEN2 = os.getenv("GITHUB_TOKEN2")
+
+
+@app.route('/create-github-repo', methods=['POST'])
+def create_github_repo():
+    rust_code_content = request.json.get('rustCodeContent')
+    if not rust_code_content:
+        return jsonify({"success": False, "message": "Rust code content is missing."})
+
+    # Create a unique repository name using a timestamp
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    repo_name = f"generated-rust-repo-{timestamp}"
+
+    # Create a new GitHub repository
+    repo_data = {
+        "name": repo_name,
+        "description": "Repository for generated Rust code",
+        "private": False
+    }
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN2}"
+    }
+    response = requests.post(
+        f"{GITHUB_API_BASE_URL}/user/repos", json=repo_data, headers=headers)
+
+    if response.status_code != 201:
+        # Print or return the exact error message from GitHub
+        error_message = response.json().get('message', 'Unknown error')
+        return jsonify({"success": False, "message": f"Failed to create GitHub repository. Error: {error_message}"})
+
+    repo_info = response.json()
+    repo_owner = repo_info['owner']['login']
+    repo_name = repo_info['name']
+
+    # Upload the Rust code to the created repository
+    file_data = {
+        "message": "Initial commit with generated Rust code",
+        "content": base64.b64encode(rust_code_content.encode('utf-8')).decode('utf-8')
+    }
+    response = requests.put(
+        f"{GITHUB_API_BASE_URL}/repos/{repo_owner}/{repo_name}/contents/generated_code.rs", json=file_data, headers=headers)
+
+    if response.status_code != 201:
+        error_message = response.json().get('message', 'Unknown error')
+        return jsonify({"success": False, "message": f"Failed to upload Rust code to the repository. Error: {error_message}"})
+
+    return jsonify({"success": True, "message": "Successfully created GitHub repository and uploaded Rust code."})
 
 
 if __name__ == '__main__':

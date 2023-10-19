@@ -108,11 +108,31 @@ export default function App() {
       } else {
         setRustCode(data.rustCode);
         setError(null);
+        await createGithubRepo(data.rustCode);
       }
     } catch (err) {
       setError("Error generating Rust code.");
     }
   };
+
+  const createGithubRepo = async (rustCodeContent: string) => {
+    const response = await fetch("http://localhost:5000/create-github-repo", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ rustCodeContent }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert(data.message);
+    } else {
+      alert("Error: " + data.message);
+    }
+  };
+
 
   const uploadFileToCOS = async () => {
     if (!selectedFile) {

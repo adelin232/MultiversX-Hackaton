@@ -278,17 +278,24 @@ def create_github_repo():
 @app.route('/add-script-file-to-repo', methods=['GET'])
 def push_actions_to_repo():
     token = GITHUB_TOKEN2
-    repository_url = git.Repo.clone_from(GITHUB_API_BASE_URL, global_repo_name)
-    # Replace with your repository URL
-    # Replace with your desired local directory
-    local_path = global_repo_name + "/code"
+
+    # Construct the correct repository URL
+    repository_url = f"https://github.com/multiversx/{global_repo_name}.git"
+
+    # Local directory for cloning
+    local_path = os.path.join("/home/adelin232", global_repo_name, "code")
 
     # Clone the repository
-    repo = git.Repo.clone_from(repository_url, local_path)
+    repo = git.Repo.clone_from(repository_url, local_path, env={
+                               'GIT_ASKPASS': 'echo', 'GIT_USERNAME': 'adelin232', 'GIT_PASSWORD': token})
     print("Repository cloned successfully.")
-    os.makedirs(local_path + "/.github/workflows", exist_ok=True)
-    # Replace with your desired file path
-    file_path = local_path + "/.github/workflows/main.yml"
+
+    # Create the workflows directory
+    os.makedirs(os.path.join(local_path, ".github",
+                "workflows"), exist_ok=True)
+
+    # Define the path for the GitHub Actions YAML file
+    file_path = os.path.join(local_path, ".github", "workflows", "main.yml")
 
     content = """
             name: Build and Deploy Contract
@@ -325,6 +332,8 @@ def push_actions_to_repo():
     repo.index.add([file_path])
     repo.index.commit("Add build file")
     repo.remotes.origin.push()
+
+    return jsonify({"success": True, "message": "Successfully added the script file to the repository."})
 
 
 if __name__ == '__main__':

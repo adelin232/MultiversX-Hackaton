@@ -1,10 +1,24 @@
 body {
   overflow-x: hidden;
-  margin: 0; /* Remove default margin */
+  margin: 0;
+  /* Remove default margin */
 }
 
 .App {
   font-family: Arial, sans-serif;
+}
+
+.navbar-logo-container {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 15px;
+  /* Adjust as needed */
+}
+
+.navbar-logo {
+  max-width: 150px;
+  /* Adjust based on your logo's size */
+  height: auto;
 }
 
 /* Styling for the navigation bar */
@@ -12,16 +26,21 @@ body {
   position: fixed;
   left: 0;
   top: 0;
-  height: 100%; /* Set the navbar's height to 100% */
-  width: 250px; /* Adjust the width as needed */
-  background-color: #007bff; /* Change to your preferred background color */
+  height: 100%;
+  /* Set the navbar's height to 100% */
+  width: 250px;
+  /* Adjust the width as needed */
+  background-color: #007bff;
+  /* Change to your preferred background color */
   padding-top: 20px;
-  padding-bottom: 20px; /* Add padding to the bottom for better spacing */
+  padding-bottom: 20px;
+  /* Add padding to the bottom for better spacing */
 }
 
 /* Add margin-top for text in the upper section */
 .upper-text {
-  margin-top: 20px; /* Adjust the margin as needed */
+  margin-top: 20px;
+  /* Adjust the margin as needed */
 }
 
 .custom-navbar .nav-link {

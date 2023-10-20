@@ -16,6 +16,7 @@ import {
 import { MultiversXService, Response } from "./sdk/multiversXService.sdk";
 import { useState, useEffect } from "react";
 import "./App.css";
+import logo from './multiversx_logo.png';
 
 export default function App() {
   const [address, setAddress] = useState("");
@@ -257,6 +258,9 @@ export default function App() {
   return (
     <div className="App">
       <Navbar color="dark" dark className="mb-5 custom-navbar">
+        <div className="navbar-logo-container">
+          <img src={logo} alt="MultiversX Logo" className="navbar-logo" />
+        </div>
         <Nav vertical>
           <NavItem>
             <NavLink

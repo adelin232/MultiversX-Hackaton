@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
+import git
 import re
 from bs4 import BeautifulSoup
 import base64
@@ -219,6 +220,7 @@ def create_endpoints():
 
 GITHUB_API_BASE_URL = "https://api.github.com"
 GITHUB_TOKEN2 = os.getenv("GITHUB_TOKEN2")
+global_repo_name = ""
 
 
 @app.route('/create-github-repo', methods=['POST'])
@@ -230,6 +232,7 @@ def create_github_repo():
     # Create a unique repository name using a timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     repo_name = f"generated-rust-repo-{timestamp}"
+    global_repo_name = repo_name
 
     # Create a new GitHub repository
     repo_data = {
@@ -265,6 +268,57 @@ def create_github_repo():
         return jsonify({"success": False, "message": f"Failed to upload Rust code to the repository. Error: {error_message}"})
 
     return jsonify({"success": True, "message": "Successfully created GitHub repository and uploaded Rust code."})
+
+@app.route('/add-script-file-to-repo', methods=['GET'])
+def push_actions_to_repo():
+        token = GITHUB_TOKEN2
+        repository_url = git.Repo.clone_from(GITHUB_API_BASE_URL, global_repo_name)
+        # Replace with your repository URL
+        local_path = global_repo_name + "/code"  # Replace with your desired local directory
+
+        # Clone the repository
+        git.Git(local_path).clone(repository_url, auth=token)
+        print("Repository cloned successfully.")
+        os.makedirs(local_path + "/.github/workflows", exist_ok=True)
+        file_path = local_path + "/.github/workflows/main.yml"  # Replace with your desired file path
+
+        content = """
+            name: Build and Deploy Contract
+
+            on:
+                push:
+                    branches: [ main ]
+
+            jobs:
+                build:
+                    runs-on: ubuntu-latest
+                    steps:
+                    - uses: actions/checkout@v2
+                    - name: Set up Rust
+                        uses: actions-rs/toolchain@v1
+                        with:
+                            profile: minimal
+                            toolchain: stable
+                    - name: Build Contract
+                        run: |
+                            cargo build --release --target wasm32-unknown-unknown
+                            wasm-gc target/wasm32-unknown-unknown/release/multiversx.wasm target/wasm32-unknown-unknown/release/multiversx.gc.wasm
+                    - name: Deploy Contract
+                        uses: MultiversX/multiversx-contract-deploy-action@v1
+                        with:
+                            contract: target/wasm32-unknown-unknown/release/multiversx.gc.wasm
+                            network: devnet
+                            key: ${{ secrets.DEVNET_PRIVATE_KEY }}
+            """
+
+        with open(file_path, 'w') as file:
+                file.write(content)
+
+        repo.index.add([file_path])
+        repo.index.commit("Add build file")
+        repo.remotes.origin.push()
+        
+
 
 
 if __name__ == '__main__':

@@ -133,6 +133,23 @@ export default function App() {
     }
   };
 
+  const addScriptFileToRepo = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/add-script-file-to-repo", {
+        method: "GET",
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(data.message);
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (err) {
+      alert("Error adding script file to the repository.");
+    }
+  };
 
   const uploadFileToCOS = async () => {
     if (!selectedFile) {
@@ -361,7 +378,10 @@ export default function App() {
               <Button color="primary" onClick={generateRustCode} className="mb-3">
                 Generate Rust Code
               </Button>
-
+              <div className="mb-3"></div>
+              <Button color="secondary" onClick={addScriptFileToRepo} className="mb-3">
+                Add Script File to Repo
+              </Button>
               {error && <Alert color="danger" className="mt-3">{error}</Alert>}
               {rustCode && (
                 <div className="mt-3 bg-light p-3 custom-code-block">

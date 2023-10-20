@@ -43,7 +43,12 @@ CORS(app, resources={
         "origins": ["https://beige-jolly-capybara.app.genez.io", "https://beige-jolly-capybara.dev.app.genez.io", "http://localhost:3000"],
         "methods": ["POST"],
         "allow_headers": ["Content-Type", "Authorization"]
-    }
+    },
+    r"/add-script-file-to-repo": {
+        "origins": ["https://beige-jolly-capybara.app.genez.io", "https://beige-jolly-capybara.dev.app.genez.io", "http://localhost:3000"],
+        "methods": ["GET"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    },
 })
 
 
@@ -269,20 +274,23 @@ def create_github_repo():
 
     return jsonify({"success": True, "message": "Successfully created GitHub repository and uploaded Rust code."})
 
+
 @app.route('/add-script-file-to-repo', methods=['GET'])
 def push_actions_to_repo():
-        token = GITHUB_TOKEN2
-        repository_url = git.Repo.clone_from(GITHUB_API_BASE_URL, global_repo_name)
-        # Replace with your repository URL
-        local_path = global_repo_name + "/code"  # Replace with your desired local directory
+    token = GITHUB_TOKEN2
+    repository_url = git.Repo.clone_from(GITHUB_API_BASE_URL, global_repo_name)
+    # Replace with your repository URL
+    # Replace with your desired local directory
+    local_path = global_repo_name + "/code"
 
-        # Clone the repository
-        git.Git(local_path).clone(repository_url, auth=token)
-        print("Repository cloned successfully.")
-        os.makedirs(local_path + "/.github/workflows", exist_ok=True)
-        file_path = local_path + "/.github/workflows/main.yml"  # Replace with your desired file path
+    # Clone the repository
+    repo = git.Repo.clone_from(repository_url, local_path)
+    print("Repository cloned successfully.")
+    os.makedirs(local_path + "/.github/workflows", exist_ok=True)
+    # Replace with your desired file path
+    file_path = local_path + "/.github/workflows/main.yml"
 
-        content = """
+    content = """
             name: Build and Deploy Contract
 
             on:
@@ -311,14 +319,12 @@ def push_actions_to_repo():
                             key: ${{ secrets.DEVNET_PRIVATE_KEY }}
             """
 
-        with open(file_path, 'w') as file:
-                file.write(content)
+    with open(file_path, 'w') as file:
+        file.write(content)
 
-        repo.index.add([file_path])
-        repo.index.commit("Add build file")
-        repo.remotes.origin.push()
-        
-
+    repo.index.add([file_path])
+    repo.index.commit("Add build file")
+    repo.remotes.origin.push()
 
 
 if __name__ == '__main__':
